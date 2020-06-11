@@ -12,20 +12,20 @@ function redButtonRecord() {
 }
 function stopRecord() {
     changeButtonColor(recordButton, "transparent", "black")
+    createElementAudioDisplay()
+    audioFileName()
 }
 function createElementAudioDisplay() {
     var audioElement = document.createElement('audio')
     audioElement.setAttribute("controls", true)
     document.body.insertBefore(audioElement, buttonsElement);
 }
-createElementAudioDisplay()
 function audioFileName() {
     var newTitle= document.createTextNode("mon titre bip audio")
     var textEdit = document.createElement("div")
     textEdit.appendChild(newTitle)
     document.body.insertBefore(textEdit, buttonsElement);
 }
-audioFileName()
 function IdidIt() {
     var newPtitle= document.createTextNode("clotte assure")
     var textEdit2 = document.createElement("p")
@@ -39,4 +39,3 @@ function IdidIt() {
     document.body.insertBefore(prouteButton, headerElement)
 }
 IdidIt()
-
