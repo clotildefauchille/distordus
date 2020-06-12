@@ -13,6 +13,9 @@ let audioCreateContainers = function (stream) {
         const result = changeButtonColor(recordButton, "red", "white")
         console.log("result: ", result)
     }
+    mediaRecorder.ondataavailable = function(e) {
+        chunks.push(e.data);
+      }
     stopButton.onclick = function () {
         mediaRecorder.stop()
         changeButtonColor(recordButton, "transparent", "black")
