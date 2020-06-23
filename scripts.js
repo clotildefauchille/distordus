@@ -6,16 +6,17 @@ let chunks = []
 let constraints = { audio: true }
 let audioCreateContainers = function (stream) {
     const mediaRecorder = new MediaRecorder(stream)
-    recordButton.onclick = function () {
+    let startRecord = function () {
         mediaRecorder.start()
         stopButton.disabled = false;
         recordButton.disabled = true;
-        const result = changeButtonColor(recordButton, "red", "white")
-        console.log("result: ", result)
+        const resultofchangeButtonColorCall = changeButtonColor(recordButton, "red", "white")
+        console.log("result", resultofchangeButtonColorCall)
     }
-    mediaRecorder.ondataavailable = function(e) {
-        chunks.push(e.data);
-      }
+    recordButton.onclick = startRecord;
+    mediaRecorder.ondataavailable = function (blobevent) {
+        chunks.push(blobevent.data);
+    }
     stopButton.onclick = function () {
         mediaRecorder.stop()
         changeButtonColor(recordButton, "transparent", "black")
@@ -29,8 +30,15 @@ let audioCreateContainers = function (stream) {
         const audioURL = window.URL.createObjectURL(blob);
         createElementAudioDisplay(audioURL)
         audioFileName()
-
     }
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    var biquadFilter = audioCtx.createBiquadFilter()
+    var source = audioCtx.createMediaStreamSource(stream)
+    source.connect(biquadFilter)
+    biquadFilter.type = "lowshelf";
+    biquadFilter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    biquadFilter.gain.setValueAtTime(25, audioCtx.currentTime);
+    biquadFilter.connect(audioCtx.destination)
 }
 
 function changeButtonColor(button, backgroundColor, textColor) {
@@ -54,4 +62,5 @@ function audioFileName() {
 let onError = function (err) {
     console.log('The following error occured: ' + err);
 }
-navigator.mediaDevices.getUserMedia(constraints).then(stream => audioCreateContainers(stream), onError)
+let onSuccess = function (stream) { audioCreateContainers(stream) }
+navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
