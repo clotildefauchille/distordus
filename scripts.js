@@ -5,7 +5,9 @@ let stopButton = document.getElementById("stop")
 let chunks = []
 let constraints = { audio: true }
 let audioCreateContainers = function (stream) {
-    const mediaRecorder = new MediaRecorder(stream)
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    var streamDestination = audioCtx.createMediaStreamDestination()
+    const mediaRecorder = new MediaRecorder(streamDestination.stream)
     let startRecord = function () {
         mediaRecorder.start()
         stopButton.disabled = false;
@@ -31,14 +33,13 @@ let audioCreateContainers = function (stream) {
         createElementAudioDisplay(audioURL)
         audioFileName()
     }
-    var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     var biquadFilter = audioCtx.createBiquadFilter()
     var source = audioCtx.createMediaStreamSource(stream)
     source.connect(biquadFilter)
     biquadFilter.type = "lowshelf";
     biquadFilter.frequency.setValueAtTime(1000, audioCtx.currentTime);
     biquadFilter.gain.setValueAtTime(25, audioCtx.currentTime);
-    biquadFilter.connect(audioCtx.destination)
+    biquadFilter.connect(streamDestination)
 }
 
 function changeButtonColor(button, backgroundColor, textColor) {
