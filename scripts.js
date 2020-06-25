@@ -34,13 +34,17 @@ let audioCreateContainers = function (stream) {
         audioFileName()
     }
     var biquadFilter = audioCtx.createBiquadFilter()
+    var biquadFilter2 = audioCtx.createBiquadFilter ()
     var source = audioCtx.createMediaStreamSource(stream)
     source.connect(biquadFilter)
-    biquadFilter.type = "peaking";
-    biquadFilter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    biquadFilter.Q = 3
-    biquadFilter.gain.setValueAtTime(35, audioCtx.currentTime);
-    biquadFilter.connect(streamDestination)
+    biquadFilter.type = "highpass";
+    biquadFilter.frequency.setValueAtTime(6000, audioCtx.currentTime);
+    biquadFilter.connect(biquadFilter2)
+    biquadFilter2.type = "peaking";
+    biquadFilter2.frequency.setValueAtTime(7000, audioCtx.currentTime);
+    biquadFilter2.Q = 20
+    biquadFilter2.gain.setValueAtTime(30, audioCtx.currentTime);
+    biquadFilter2.connect(streamDestination)
 }
 
 function changeButtonColor(button, backgroundColor, textColor) {
