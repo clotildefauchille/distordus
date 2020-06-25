@@ -36,9 +36,10 @@ let audioCreateContainers = function (stream) {
     var biquadFilter = audioCtx.createBiquadFilter()
     var source = audioCtx.createMediaStreamSource(stream)
     source.connect(biquadFilter)
-    biquadFilter.type = "lowshelf";
+    biquadFilter.type = "peaking";
     biquadFilter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    biquadFilter.gain.setValueAtTime(25, audioCtx.currentTime);
+    biquadFilter.Q = 3
+    biquadFilter.gain.setValueAtTime(35, audioCtx.currentTime);
     biquadFilter.connect(streamDestination)
 }
 
