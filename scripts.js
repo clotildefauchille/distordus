@@ -35,19 +35,24 @@ let audioCreateContainers = function (stream) {
     }
 
     var source = audioCtx.createMediaStreamSource(stream)
-    async function createReverb() {
-        let convolver = audioCtx.createConvolver();
-        // load impulse response from file
-        let response = await fetch(audioURL);
-        let arraybuffer = await response.arrayBuffer();
-        convolver.buffer = await audioCtx.decodeAudioData(arraybuffer);
-
-        return convolver;
-        
-    }
-    let reverb = createReverb();
-    source.connect(reverb);
-    reverb.connect(streamDestination);
+    var distortion = audioCtx.createWaveShaper()
+    source.connect(distortion);
+    function makeDistortionCurve(amount) {
+        var k = typeof amount === 'number' ? amount : 40,
+          n_samples = 44100,
+          curve = new Float32Array(n_samples),
+          deg = Math.PI / 180,
+          i = 0,
+          x;
+        for ( ; i < n_samples; ++i ) {
+          x = i * 2 / n_samples - 1;
+          curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+        }
+        return curve;
+      }
+      distortion.curve = makeDistortionCurve(800);
+      distortion.oversample = '100x';
+      distortion.connect(streamDestination);
     
 }
 
