@@ -33,18 +33,22 @@ let audioCreateContainers = function (stream) {
         createElementAudioDisplay(audioURL)
         audioFileName()
     }
-    var biquadFilter = audioCtx.createBiquadFilter()
-    var biquadFilter2 = audioCtx.createBiquadFilter ()
+
     var source = audioCtx.createMediaStreamSource(stream)
-    source.connect(biquadFilter)
-    biquadFilter.type = "highpass";
-    biquadFilter.frequency.setValueAtTime(6000, audioCtx.currentTime);
-    biquadFilter.connect(biquadFilter2)
-    biquadFilter2.type = "peaking";
-    biquadFilter2.frequency.setValueAtTime(7000, audioCtx.currentTime);
-    biquadFilter2.Q = 20
-    biquadFilter2.gain.setValueAtTime(30, audioCtx.currentTime);
-    biquadFilter2.connect(streamDestination)
+    async function createReverb() {
+        let convolver = audioCtx.createConvolver();
+        // load impulse response from file
+        let response = await fetch(audioURL);
+        let arraybuffer = await response.arrayBuffer();
+        convolver.buffer = await audioCtx.decodeAudioData(arraybuffer);
+
+        return convolver;
+        
+    }
+    let reverb = createReverb();
+    source.connect(reverb);
+    reverb.connect(streamDestination);
+    
 }
 
 function changeButtonColor(button, backgroundColor, textColor) {
