@@ -34,27 +34,33 @@ let audioCreateContainers = function (stream) {
         audioFileName()
     }
 
-    var source = audioCtx.createMediaStreamSource(stream)
     var distortion = audioCtx.createWaveShaper()
-    source.connect(distortion);
-    function makeDistortionCurve(amount) {
-        var k = typeof amount === 'number' ? amount : 40,
-          n_samples = 44100,
-          curve = new Float32Array(n_samples),
-          deg = Math.PI / 180,
-          i = 0,
-          x;
-        for ( ; i < n_samples; ++i ) {
-          x = i * 2 / n_samples - 1;
-          curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+    var source = audioCtx.createMediaStreamSource(stream)
+    function connectDistordusFilter() {
+        source.connect(distortion);
+        function makeDistortionCurve(amount) {
+            var k = typeof amount === 'number' ? amount : 30,
+                n_samples = 44100,
+                curve = new Float32Array(n_samples),
+                deg = Math.PI / 180,
+                i = 0,
+                x;
+            for (; i < n_samples; ++i) {
+                x = i * 2 / n_samples - 1;
+                curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+            }
+            return curve;
         }
-        return curve;
-      }
-      distortion.curve = makeDistortionCurve(800);
-      distortion.oversample = '100x';
-      distortion.connect(streamDestination);
-    
+        distortion.curve = makeDistortionCurve(800);
+        distortion.oversample = '100x';
+        distortion.connect(streamDestination);
+
+    }
+    var elementThatIsNamedSelect = document.getElementById("audio-filters");
+    var audioFilterSelected = elementThatIsNamedSelect.options[elementThatIsNamedSelect.selectedIndex].value;
+    if (audioFilterSelected === "distordus") { connectDistordusFilter() }
 }
+
 
 function changeButtonColor(button, backgroundColor, textColor) {
     button.style.backgroundColor = backgroundColor
