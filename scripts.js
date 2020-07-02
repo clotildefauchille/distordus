@@ -58,7 +58,10 @@ let audioCreateContainers = function (stream) {
     }
     var elementThatIsNamedSelect = document.getElementById("audio-filters");
     var audioFilterSelected = elementThatIsNamedSelect.options[elementThatIsNamedSelect.selectedIndex].value;
-    if (audioFilterSelected === "distordus") { connectDistordusFilter() }
+    if (audioFilterSelected === "distordus") { connectDistordusFilter()}
+    elementThatIsNamedSelect.addEventListener('change', function () {
+        if (audioFilterSelected === "distordus") { connectDistordusFilter() }
+    });
 }
 
 
