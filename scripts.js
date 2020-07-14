@@ -4,7 +4,7 @@ var headerElement = document.getElementById("Welcome")
 let stopButton = document.getElementById("stop")
 let chunks = []
 let constraints = { audio: true }
-let audioCreateContainers = function (stream) {
+let audioCreateContainers = async function (stream) {
     var audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     var streamDestination = audioCtx.createMediaStreamDestination()
     const mediaRecorder = new MediaRecorder(streamDestination.stream)
@@ -65,13 +65,23 @@ let audioCreateContainers = function (stream) {
             return curve;
         }
         distortion.curve = makeDistortionCurve(800);
-        distortion.oversample = '100x';
+        distortion.oversample = '4x';
         distortion.connect(streamDestination);
 
     }
+    async function createReverb() {
+        let convolver = audioCtx.createConvolver();
+        let reader= new FileReader ()
+        let arrayBuffer = reader.readAsArrayBuffer (getEmulatorFile())
+        convolver.buffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+        return convolver;
+       
+    }
+    
     var elementThatIsNamedSelect = document.getElementById("audio-filters");
     connectDistordusFilter()
-    elementThatIsNamedSelect.addEventListener('change', function () {
+    elementThatIsNamedSelect.addEventListener('change', async function () {
         var audioFilterSelected = elementThatIsNamedSelect.options[elementThatIsNamedSelect.selectedIndex].value;
         if (audioFilterSelected === "distordus") {
             biquadFilter2.disconnect()
@@ -80,6 +90,14 @@ let audioCreateContainers = function (stream) {
         else if (audioFilterSelected === "HighPass") {
             distortion.disconnect()
             connectHighPassFilter()
+        }
+        else if (audioFilterSelected === "reverb") {
+            let reverb = await createReverb()
+            distortion.disconnect()
+            biquadFilter2.disconnect()
+            source.connect(reverb)
+            reverb.connect(streamDestination)
+
         }
     });
 }
@@ -97,6 +115,7 @@ function createElementAudioDisplay(audioURL) {
     audioElement.src = audioURL
     document.body.insertBefore(audioElement, buttonsElement);
 }
+
 function audioFileName() {
     var newTitle = document.createTextNode("mon titre audio")
     var textEdit = document.createElement("div")
@@ -106,5 +125,10 @@ function audioFileName() {
 let onError = function (err) {
     console.log('The following error occured: ' + err);
 }
+function getEmulatorFile () {
+    var reverbFile = document.getElementById ("reverb-file")
+    return reverbFile.files[0]
+}
+
 let onSuccess = function (stream) { audioCreateContainers(stream) }
 navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)

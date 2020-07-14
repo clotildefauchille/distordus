@@ -7,11 +7,16 @@
 
 <body>
     <header id="Welcome"> Welcome</header>
+    <label for="avatar">Choose a profile picture:</label>
+    <input type="file"
+           id="reverb-file" name="emulator-file"
+           accept=".wav">
 
     <label for="audio-filters">Choose an audio filter:</label>
     <select name="audio-filters" id="audio-filters">
         <option value="distordus">Distordus</option>
         <option value="HighPass">Broken hp</option>
+        <option value="reverb">Reverb</option>
     </select>
     <div id="buttons">
         <button id="record">Record</button>
