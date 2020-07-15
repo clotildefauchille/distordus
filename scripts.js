@@ -71,14 +71,15 @@ let audioCreateContainers = async function (stream) {
     }
     async function createReverb() {
         let convolver = audioCtx.createConvolver();
-        let reader= new FileReader ()
-        let arrayBuffer = reader.readAsArrayBuffer (getEmulatorFile())
+        let reader = new FileReader()
+        let file = getEmulatorFile()
+        let arrayBuffer = await readEmulatorFile(file)
         convolver.buffer = await audioCtx.decodeAudioData(arrayBuffer);
 
         return convolver;
-       
+
     }
-    
+
     var elementThatIsNamedSelect = document.getElementById("audio-filters");
     connectDistordusFilter()
     elementThatIsNamedSelect.addEventListener('change', async function () {
@@ -125,8 +126,18 @@ function audioFileName() {
 let onError = function (err) {
     console.log('The following error occured: ' + err);
 }
-function getEmulatorFile () {
-    var reverbFile = document.getElementById ("reverb-file")
+async function readEmulatorFile(file) {
+    return new Promise((resolve) => {
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+            resolve(evt.target.result);
+        };
+        reader.readAsArrayBuffer(file);
+
+    })
+}
+function getEmulatorFile() {
+    var reverbFile = document.getElementById("reverb-file")
     return reverbFile.files[0]
 }
 
