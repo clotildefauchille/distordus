@@ -155,7 +155,7 @@ function getEmulatorFile() {
 let onSuccess = function(stream) { audioCreateContainers(stream) }
 navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
 
-function dessiner() {
+/*function dessiner() {
     var canevas = document.getElementById('tutoriel');
     if (canevas.getContext) {
         var ctx = canevas.getContext('2d');
@@ -175,4 +175,4 @@ function dessiner() {
 
     }
 }
-dessiner()
+dessiner() */
