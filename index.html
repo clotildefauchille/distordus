@@ -3,26 +3,32 @@
 
 <head>
     <title>Distordus</title>
+    <link href="styles.css" rel="stylesheet">
 </head>
 
 <body>
-    <header id="Welcome"> Welcome</header>
-    <label for="avatar">Choose a profile picture:</label>
-    <input type="file"
-           id="reverb-file" name="emulator-file"
-           accept=".wav">
+    <header class="distordus-title border" id="Welcome to Distordus"> Welcome</header>
+    <h1 class="border"> distord youre voice and share it to the world...</h1>
+    <div class="border" id="buttons">
+        <button class="buttonStopRec" id="record">Record</button>
+        <button class="buttonStopRec" onclick="stopRecord()" disabled id="stop">Stop</button>
+    </div>
+    <div class="formfield-select">
+        <label for="avatar">Choose a reverb type:</label>
+        <input type="file" id="reverb-file" name="emulator-file" accept=".wav">
 
-    <label for="audio-filters">Choose an audio filter:</label>
-    <select name="audio-filters" id="audio-filters">
+        <label for="audio-filters">Choose filter:</label>
+        <select class="formfield-select--container" name="audio-filters" id="audio-filters">
         <option value="distordus">Distordus</option>
         <option value="HighPass">Broken hp</option>
         <option value="reverb">Reverb</option>
     </select>
-    <div id="buttons">
-        <button id="record">Record</button>
-        <button onclick="stopRecord()" disabled id="stop">Stop</button>
     </div>
+    <div id="end"></div>
+    <canvas id="tutoriel" width="150" height="150"></canvas>
     <script src="scripts.js"></script>
+
+
 </body>
 
 </html>
