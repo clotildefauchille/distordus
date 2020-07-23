@@ -1,34 +1,73 @@
-body {
-    background-color: rgb(243, 239, 243);
-    width: 700px;
-    margin: 0 auto;
-    font: .9em/1.2 Arial, Helvetica, sans-serif;
-}
-
-.distordus-title {
-    font-size: 45px;
-}
-
-.border {
-    border: 1px solid black;
-    display: flex;
-    justify-content: center;
-    padding: 0 20px 20px 20px;
-    margin: 5 auto;
-}
-
-.formfield-select {
-    border: 1px solid black;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.buttonStopRec {
-    height: 60px;
-    width: 60px;
-}
-
-.audio-display-style {
-    background-color: crimson;
-}
+    body {
+        background-color: #c1d5e0;
+        width: 700px;
+        margin: 10px auto;
+        font-family: monospace;
+    }
+    
+    .distordus-title {
+        background-color: #90a4ae;
+        font-size: 64px;
+        color: #a7ffeb;
+        display: flex;
+        justify-content: center;
+        margin: 0 auto;
+        font-family: monospace;
+    }
+    
+    header {
+        padding: 50px 50px 50px 50px;
+        color: #a7ffeb;
+    }
+    
+    h1 {
+        font-size: 22px;
+        background-color: #90a4ae;
+        font-style: italic;
+        color: #ef5350;
+    }
+    
+    .border {
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        padding: 20px 20px 20px 20px;
+        margin: 0 auto;
+    }
+    
+    #buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .buttonStopRec {
+        margin: 7px;
+        height: 75px;
+        width: 83px;
+    }
+    
+    #record {
+        height: 86px;
+        width: 86px;
+        border-radius: 106px;
+        background-color: rgb(255, 134, 124, .4)
+    }
+    
+    .formfield-select {
+        display: grid;
+        border: 1px solid black;
+        justify-content: center;
+        flex-direction: column;
+        background-color: #62757f;
+        color: #a7ffeb;
+        font-size: large;
+    }
+    
+    input {
+        background-color: #62757f;
+    }
+    
+    .audio-display-style {
+        background-color: #ff867c;
+    }

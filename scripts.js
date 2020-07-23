@@ -14,7 +14,7 @@ let audioCreateContainers = async function(stream) {
         mediaRecorder.start()
         stopButton.disabled = false;
         recordButton.disabled = true;
-        const resultofchangeButtonColorCall = changeButtonColor(recordButton, "red", "white")
+        const resultofchangeButtonColorCall = changeButtonColor(recordButton, "#b61827", "white")
         console.log("result", resultofchangeButtonColorCall)
     }
     recordButton.onclick = startRecord;
@@ -23,7 +23,7 @@ let audioCreateContainers = async function(stream) {
     }
     stopButton.onclick = function() {
         mediaRecorder.stop()
-        changeButtonColor(recordButton, "transparent", "black")
+        changeButtonColor(recordButton, "rgb(255, 134,124, .4)", "black")
         stopButton.disabled = true;
         recordButton.disabled = false;
 
