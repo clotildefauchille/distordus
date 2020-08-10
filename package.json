@@ -1,22 +1,23 @@
 {
-  "name": "distordus",
-  "version": "1.0.0",
-  "description": "record your voice with soundeffect",
-  "main": "scripts.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/clotildefauchille/distordus.git"
-  },
-  "author": "pouille and clo",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/clotildefauchille/distordus/issues"
-  },
-  "homepage": "https://github.com/clotildefauchille/distordus#readme",
-  "devDependencies": {
-    "parcel-bundler": "^1.12.4"
-  }
+    "name": "distordus",
+    "version": "1.0.0",
+    "description": "record your voice with soundeffect",
+    "main": "scripts.js",
+    "scripts": {
+        "dev": "parcel <your entry file>",
+        "build": "parcel build <your entry file>"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/clotildefauchille/distordus.git"
+    },
+    "author": "pouille and clo",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/clotildefauchille/distordus/issues"
+    },
+    "homepage": "https://github.com/clotildefauchille/distordus#readme",
+    "devDependencies": {
+        "parcel-bundler": "^1.12.4"
+    }
 }
