@@ -1,7 +1,13 @@
-let set = new Set();
-set.add(5).add(9).add(59).add(9);
+class Rectangle {
+    constructor(hauteur, largeur) {
+        this.hauteur = hauteur;
+        this.largeur = largeur;
+    }
+    calcArea() {
+        return this.largeur * this.hauteur;
 
-console.log(set.has(9));
+    }
 
-for (let v of set.values())
-    console.log(v);
+    const carre = new Rectangle(10, 10);
+
+    console.log(carre.calcArea);
