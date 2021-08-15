@@ -8,24 +8,26 @@
 </head>
 
 <body>
-    <header class="distordus-title" id="Welcome to Distordus"> Distordus</header>
-    <h1 class="border"> distord youre voice and share it to the world...</h1>
-    <div class="border" id="buttons">
-        <button class="buttonStopRec" id="record">Record</button>
-        <button class="buttonStopRec" onclick="stopRecord()" disabled id="stop">Stop</button>
-    </div>
-    <div class="formfield-select">
-        <label for="avatar">choose reverb type:</label>
-        <input type="file" id="reverb-file" name="emulator-file" accept=".wav">
-        <label for="audio-filters">choose filter:</label>
-        <select class="formfield-select--container" name="audio-filters" id="audio-filters">
-        <option value="distordus">Distordus</option>
-        <option value="HighPass">Broken hp</option>
-        <option value="reverb">Reverb</option>
-    </select>
+    <div class="wrapper">
+        <header class="distordus-title" id="Welcome to Distordus"> Distordus</header>
+        <h1 class="border"> distord youre voice and share it to the world...</h1>
+        <canvas class="visualizer" width="640" height="100"></canvas>
+        <div class="border" id="buttons">
+            <button class="buttonStopRec" id="record">Record</button>
+            <button class="buttonStopRec" onclick="stopRecord()" disabled id="stop">Stop</button>
+        </div>
+        <div class="formfield-select">
+            <label for="avatar">choose reverb type:</label>
+            <input type="file" id="reverb-file" name="emulator-file" accept=".wav">
+            <label for="audio-filters">choose filter:</label>
+            <select class="formfield-select--container" name="audio-filters" id="audio-filters">
+                <option value="distordus">Distordus</option>
+                <option value="HighPass">Broken hp</option>
+                <option value="reverb">Reverb</option>
+            </select>
+        </div>
     </div>
     <div id="end"></div>
-    <canvas id="tutoriel" width="150" height="150"></canvas>
     <script src="scripts.js"></script>
 
 
