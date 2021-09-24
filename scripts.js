@@ -7,67 +7,71 @@ let endOfDoc = document.getElementById('end')
 let chunks = []
 let constraints = { audio: true }
 let audioCreateContainers = async function(stream) {
-    var audioCtx = new(window.AudioContext || window.webkitAudioContext)()
-    var streamDestination = audioCtx.createMediaStreamDestination()
-    const mediaRecorder = new MediaRecorder(streamDestination.stream)
-    let startRecord = function() {
-        mediaRecorder.start()
-        stopButton.disabled = false;
-        recordButton.disabled = true;
-        const resultofchangeButtonColorCall = changeButtonColor(recordButton, "#b61827", "white")
-        console.log("result", resultofchangeButtonColorCall)
-    }
-    recordButton.onclick = startRecord;
-    mediaRecorder.ondataavailable = function(blobevent) {
-        chunks.push(blobevent.data);
-    }
-    stopButton.onclick = function() {
-        mediaRecorder.stop()
-        changeButtonColor(recordButton, "rgb(255, 134,124, .4)", "black")
-        stopButton.disabled = true;
-        recordButton.disabled = false;
-
-    }
-    mediaRecorder.onstop = function(e) {
-        const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
-        chunks = [];
-        const audioURL = window.URL.createObjectURL(blob);
-        createElementAudioDisplay(audioURL);
-        audioFileName();
-    }
+    var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+    console.log("audioCtx", audioCtx)
+    var streamDestination = audioCtx.createMediaStreamDestination();
+    const mediaRecorder = new MediaRecorder(streamDestination.stream);
+    console.log('app.mediaRecorder in audiocreatecontainer', mediaRecorder.ondataavailable);
 
     var distortion = audioCtx.createWaveShaper();
     var source = audioCtx.createMediaStreamSource(stream);
     var biquadFilter = audioCtx.createBiquadFilter();
     var biquadFilter2 = audioCtx.createBiquadFilter();
     var analyser = audioCtx.createAnalyser();
-    // analyser.minDecibels = -90;
-    // analyser.maxDecibels = -10;
-    // analyser.smoothingTimeConstant = 0.85;
 
+    let startRecord = function() {
+        mediaRecorder.start();
+        // pour avoir le retour monitor
+        source.connect(audioCtx.destination);
+        stopButton.disabled = false;
+        recordButton.disabled = true;
+        const resultofchangeButtonColorCall = changeButtonColor(recordButton, "#b61827", "white");
+        console.log("start recording");
+    }
+    recordButton.onclick = startRecord;
+    
+    stopButton.onclick = function() {
+        mediaRecorder.stop()
+        console.log("stop recording");
+        changeButtonColor(recordButton, "rgb(255, 134,124, .4)", "black")
+        stopButton.disabled = true;
+        recordButton.disabled = false;
+
+    }
+    mediaRecorder.onstop = function(e) {
+        console.log("onstop");
+        const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
+        console.log("blob in onstop:", blob)
+        chunks = [];
+        console.log("chunks:", chunks);
+        const audioURL = window.URL.createObjectURL(blob);
+        console.log("audioURL", audioURL);
+        createElementAudioDisplay(audioURL);
+        audioFileName();
+        
+    }
+
+    mediaRecorder.ondataavailable = function (blobevent) {
+        console.log("ondataavailable before:", blobevent.data)
+        chunks.push(blobevent.data);
+        console.log("ondataavailable after:", blobevent.data);
+    }
 
     // set up canvas context for visualizer
     var canvas = document.querySelector('.visualizer');
     var canvasCtx = canvas.getContext("2d");
     var intendedWidth = document.querySelector('.wrapper').clientWidth;
     canvas.setAttribute('width', intendedWidth);
-    var visualSelect = document.getElementById("audio-filters");
      var drawVisual;
 
     function analyseAudio(){
         source.connect(analyser);
         analyser.connect(streamDestination);
-        visualize();
+        visualizeAnalizer();
     }
-    function visualize() {
+    function visualizeAnalizer() {
         WIDTH = canvas.width;
         HEIGHT = canvas.height;
-
-
-        var visualSetting = visualSelect.value;
-        console.log(visualSetting);
-
-        if (visualSetting === "distordus") {
             analyser.fftSize = 2048;
             var bufferLength = analyser.fftSize;
             console.log(bufferLength);
@@ -112,44 +116,7 @@ let audioCreateContainers = async function(stream) {
 
             draw();
 
-        } else if (visualSetting == "frequencybars") {
-            analyser.fftSize = 256;
-            var bufferLengthAlt = analyser.frequencyBinCount;
-            console.log(bufferLengthAlt);
-            var dataArrayAlt = new Uint8Array(bufferLengthAlt);
-
-            canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-
-            var drawAlt = function () {
-                drawVisual = requestAnimationFrame(drawAlt);
-
-                analyser.getByteFrequencyData(dataArrayAlt);
-
-                canvasCtx.fillStyle = 'rgb(0, 0, 0)';
-                canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-
-                var barWidth = (WIDTH / bufferLengthAlt) * 2.5;
-                var barHeight;
-                var x = 0;
-
-                for (var i = 0; i < bufferLengthAlt; i++) {
-                    barHeight = dataArrayAlt[i];
-
-                    canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
-                    canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
-
-                    x += barWidth + 1;
-                }
-            };
-
-            drawAlt();
-
-        } else if (visualSetting == "off") {
-            canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-            canvasCtx.fillStyle = "red";
-            canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-        }
-
+       
     }
     function connectHighPassFilter() {
         source.connect(biquadFilter);
@@ -162,7 +129,7 @@ let audioCreateContainers = async function(stream) {
         biquadFilter2.gain.setValueAtTime(30, audioCtx.currentTime);
         biquadFilter2.connect(streamDestination);
     }
-
+source.connect(streamDestination);
     function connectDistordusFilter() {
         source.connect(distortion);
 
@@ -187,7 +154,8 @@ let audioCreateContainers = async function(stream) {
     async function createReverb() {
         let convolver = audioCtx.createConvolver();
         let reader = new FileReader()
-        let file = getEmulatorFile()
+        let file = getEmulatorFile();
+        console.log('file', typeof file, file);
             // equivalent aux 3 lignes suivantes 
             // readEmulatorFile (file).then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer)).then(buffer=>{
             //     convolver.buffer=buffer
@@ -197,12 +165,11 @@ let audioCreateContainers = async function(stream) {
         convolver.buffer = await audioCtx.decodeAudioData(arrayBuffer);
 
         return convolver;
-
     }
 
     var elementThatIsNamedSelect = document.getElementById("audio-filters");
     connectDistordusFilter()
-    analyseAudio()
+//     analyseAudio()
     elementThatIsNamedSelect.addEventListener('change', async function() {
         var audioFilterSelected = elementThatIsNamedSelect.options[elementThatIsNamedSelect.selectedIndex].value;
         if (audioFilterSelected === "distordus") {
@@ -219,9 +186,8 @@ let audioCreateContainers = async function(stream) {
             reverb.connect(streamDestination)
 
         }
-    });
+});
 }
-
 
 function changeButtonColor(button, backgroundColor, textColor) {
     button.style.backgroundColor = backgroundColor
@@ -251,11 +217,13 @@ let onError = function(err) {
 async function readEmulatorFile(file) {
     return new Promise((resolve) => {
         var reader = new FileReader();
+        console.log('reader', reader)
+
         reader.onload = function(evt) {
+            console.log('evt.target.result', evt.target.result)
             resolve(evt.target.result);
         };
         reader.readAsArrayBuffer(file);
-
     })
 }
 
@@ -264,6 +232,6 @@ function getEmulatorFile() {
     return reverbFile.files[0]
 }
 
-let onSuccess = function(stream) { audioCreateContainers(stream) }
+let onSuccess = function(stream) { audioCreateContainers(stream) };
 navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError)
 

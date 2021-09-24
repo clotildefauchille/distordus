@@ -1,36 +1,81 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Distordus</title>
-    <link href="styles.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
-</head>
+    <link href="styles.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="wrapper">
-        <header class="distordus-title" id="Welcome to Distordus"> Distordus</header>
-        <h1 class="border"> distord youre voice and share it to the world...</h1>
-        <canvas class="visualizer" width="640" height="100"></canvas>
-        <div class="border" id="buttons">
-            <button class="buttonStopRec" id="record">Record</button>
-            <button class="buttonStopRec" onclick="stopRecord()" disabled id="stop">Stop</button>
+      <header class="distordus-title" id="Welcome to Distordus">
+        Distordus
+      </header>
+      <h1 class="border">distord youre voice and share it to the world...</h1>
+      <canvas class="visualizer" width="640" height="100"></canvas>
+      <div class="border" id="buttons">
+        <button class="buttonStopRec" id="record">Record</button>
+        <button class="buttonStopRec" disabled id="stop">Stop</button>
+      </div>
+      <div class="formfield-select">
+        <div class="highPass__container">
+          <p class="highPass__title">HighPass Filter</p>
+          <input class="radio-button" type="radio" name="highPass" value="on" />
+          <label for="highPass">On</label>
+          <input
+            class="radio-button"
+            type="radio"
+            name="highPass"
+            value="off"
+          />
+          <label for="highPass">Off</label>
         </div>
-        <div class="formfield-select">
+        <div class="reverb__container">
+          <p class="reverb__title">Réverbe</p>
+          <audio id="reverb-file" src="./bigHall.wav" type="audio/wav"></audio>
+          <input class="radio-button" type="radio" name="reverb" value="on" />
+          <label for="reverb">On</label>
+          <input class="radio-button" type="radio" name="reverb" value="off" />
+          <label for="reverb">Off</label>
+        </div>
+        <!-- <div class="reverbType__container">
+                <p class="reverbType__title">RéverbeType</p>
+                <input type="radio" name="reverbType" value="on" />
+                <label for="reverbType">Short</label>
+                <input type="radio" name="reverbType" value="off" />
+                <label for="reverbType">Long</label>
+            </div>
             <label for="avatar">choose reverb type:</label>
-            <input type="file" id="reverb-file" name="emulator-file" accept=".wav">
-            <label for="audio-filters">choose filter:</label>
+            <input type="file" id="reverb-file" name="emulator-file" accept=".wav"> -->
+        <div class="distortion__container">
+          <p class="distortion__title">Distortion</p>
+          <input
+            class="radio-button"
+            type="radio"
+            name="distortion"
+            value="on"
+          />
+          <label for="distortion">On</label>
+          <input
+            class="radio-button"
+            type="radio"
+            name="distortion"
+            value="off"
+          />
+          <label for="distortion">Off</label>
+        </div>
+        <!-- <label for="audio-filters">choose filter:</label>
             <select class="formfield-select--container" name="audio-filters" id="audio-filters">
                 <option value="distordus">Distordus</option>
                 <option value="HighPass">Broken hp</option>
                 <option value="reverb">Reverb</option>
-            </select>
-        </div>
+            </select> -->
+      </div>
     </div>
-    <div id="end"></div>
-    <script src="scripts.js"></script>
-
-
-</body>
-
+    <div id="audioFileContainer"></div>
+    <script src="app.js"></script>
+  </body>
 </html>
