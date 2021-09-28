@@ -1,4 +1,6 @@
 var app = {
+  //TODO bouton input stylesheet
+  //TODO analyseur à taffer ligne deviens rouge au rec
   init: () => {
     //l'utilisateur autorise ou non l'enregistrement
     navigator.mediaDevices
@@ -9,6 +11,11 @@ var app = {
     app.stopButton = document.getElementById("stop");
     app.listenToButtonClick();
     app.listenToInputValueChange();
+    app.canvas = document.querySelector('.visualizer');
+    app.canvasCtx = app.canvas.getContext("2d");
+    app.intendedWidth = document.querySelector('.wrapper').clientWidth;
+    app.canvas.setAttribute('width', intendedWidth);
+    app.drawVisual;
     app.audioFileContainer = document.getElementById("audioFileContainer");
     app.highPassButtonOff = document.getElementById("highPassOff");
     app.highPassButtonOn = document.getElementById("highPassOn");
@@ -29,6 +36,9 @@ var app = {
     app.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     //creation d'une entrée, source audio
     app.source = app.audioCtx.createMediaStreamSource(stream);
+
+    //app.mic.disconnect(app.audioCtx.destination)
+
     //creation d'une sortie, destination audio
     app.streamDestination = app.audioCtx.createMediaStreamDestination();
     //creation d'un enregistreur
@@ -37,6 +47,9 @@ var app = {
     app.distortion = app.audioCtx.createWaveShaper();
     app.convolver = app.audioCtx.createConvolver();
     app.gainNode = app.audioCtx.createGain();
+    app.analyser = app.audioCtx.createAnalyser();
+    app.analyseAudio();
+
     //connecte la source à la sortie
   },
   pushBlob: () => {
@@ -62,7 +75,7 @@ var app = {
     app.audioElement.className = "audio-display-style";
     document.body.insertBefore(app.audioElement, app.audioFileContainer);
   },
-  startRecord: (effect) => {
+  startRecord: () => {
     app.mediaRecorder.start();
     // pour avoir le retour monitor
     //app.source.connect(app.audioCtx.destination)
@@ -97,28 +110,18 @@ var app = {
       app.distortion.disconnect();
       app.connectHighPassFilter();
     }
-    /*if (app.highPassButtonOff.checked) {
-      console.log('hey hipassoff')
-      //app.connectHighPassFilter();
-    }*/
     if ((app.reverbButtonOn.checked) && (!app.distortionButtonOn.checked) && (!app.highPassButtonOn.checked)) {
       console.log('hey revOn only')
       app.highPassFilter.disconnect();
       app.distortion.disconnect();
       app.connectReverb();
     }
-    /*if (app.reverbButtonOff.checked) {
-      console.log('hey revOff')
-    }*/
     if ((app.distortionButtonOn.checked) && (!app.reverbButtonOn.checked) && (!app.highPassButtonOn.checked)) {
       console.log('hey distOn only')
       app.convolver.disconnect();
       app.highPassFilter.disconnect();
       app.connectDistortion();
     }
-    /*if (app.distortionButtonOff.checked) {
-      console.log('hey distOff')
-    }*/
     if ((!app.distortionButtonOn.checked) && (!app.reverbButtonOn.checked) && (!app.highPassButtonOn.checked)) {
       console.log('no effect');
       app.highPassFilter.disconnect();
@@ -127,15 +130,55 @@ var app = {
       app.connectToNoEffect();
     }
   },
+  analyseAudio: () => {
+    app.source.connect(app.analyser);
+    app.analyser.connect(app.streamDestination);
+    app.visualizeAnalizer();
+  },
+  visualizeAnalizer: () => {
+    WIDTH = app.canvas.width;
+    HEIGHT = app.canvas.height;
+    app.analyser.fftSize = 2048;
+    var bufferLength = app.analyser.fftSize;
+    console.log(bufferLength);
+    var dataArray = new Uint8Array(bufferLength);
+    app.canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    var draw = function () {
+      drawVisual = requestAnimationFrame(draw);
+      app.analyser.getByteTimeDomainData(dataArray);
+      app.canvasCtx.fillStyle = '#90a4ae';
+      app.canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+      app.canvasCtx.lineWidth = 2;
+      app.canvasCtx.strokeStyle = '#a7ffeb';
+      app.canvasCtx.beginPath();
+      var sliceWidth = WIDTH * 1.0 / bufferLength;
+      var x = 0;
+      for (var i = 0; i < bufferLength; i++) {
+        var v = dataArray[i] / 128.0;
+        var y = v * HEIGHT / 2;
+        if (i === 0) {
+          app.canvasCtx.moveTo(x, y);
+        } else {
+          app.canvasCtx.lineTo(x, y);
+        }
+        x += sliceWidth;
+      }
+      app.canvasCtx.lineTo(app.canvas.width, app.canvas.height / 2);
+      app.canvasCtx.stroke();
+    };
+    draw();
+  },
   connectToNoEffect: () => {
     console.log("conection function");
     app.source.connect(app.gainNode);
+    //monitoring
     app.source.connect(app.audioCtx.destination);
     app.gainNode.gain.value = 1;
     app.gainNode.connect(app.streamDestination);
   },
   connectHighPassFilter: () => {
     app.source.connect(app.highPassFilter);
+    //monitoring
     app.highPassFilter.connect(app.audioCtx.destination)
     app.highPassFilter.type = "highpass";
     app.highPassFilter.frequency.setValueAtTime(5000, app.audioCtx.currentTime);
@@ -150,7 +193,7 @@ var app = {
     app.gainNode.gain.value = 0.3;
     //pour avoir effect dans monitoring
     app.gainNode.connect(app.audioCtx.destination)
-    
+
     function makeDistortionCurve(amount) {
       var k = typeof amount === "number" ? amount : 50,
         n_samples = 44100,
@@ -171,6 +214,7 @@ var app = {
   connectReverb: async () => {
     let reverb = await app.createReverb();
     app.source.connect(reverb);
+    //monitoring
     reverb.connect(app.audioCtx.destination)
     reverb.connect(app.gainNode);
     app.gainNode.gain.value = 2;
@@ -193,6 +237,7 @@ var app = {
     });
   },
   listenToButtonClick: () => {
+    //TODO faire un bouton qui clignote la 1ere fois vec monitoring
     app.recordButton.addEventListener("click", (evt) => {
       app.startRecord();
     });

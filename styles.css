@@ -4,7 +4,7 @@
         margin: 35px auto;
         font-family: 'Permanent Marker', cursive;
     }
-    
+
     .distordus-title {
         background-color: #90a4ae;
         font-size: 64px;
@@ -13,38 +13,43 @@
         justify-content: center;
         margin: 0 auto;
     }
-    
+
+    .visualizer {
+        width: 100%;
+        height: 6rem;
+    }
+
     header {
         padding: 50px 50px 10px 50px;
         color: #a7ffeb;
     }
-    
+
     h1 {
         font-size: 22px;
         background-color: #90a4ae;
         font-style: italic;
         color: #ef5350;
     }
-    
+
     .border {
         display: flex;
         justify-content: center;
         padding: 43px 20px 50px 20px;
         margin: 0 auto;
     }
-    
+
     #buttons {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
+
     .buttonStopRec {
         margin: 7px;
         height: 75px;
         width: 83px;
     }
-    
+
     #record {
         height: 86px;
         width: 86px;
@@ -52,7 +57,7 @@
         background-color: rgb(255, 134, 124, .4);
         font-family: 'Permanent Marker', cursive;
     }
-    
+
     .formfield-select {
         display: grid;
         border: 1px solid black;
@@ -62,11 +67,11 @@
         color: #a7ffeb;
         font-size: large;
     }
-    
+
     input {
         background-color: #62757f;
     }
-    
+
     .audio-display-style {
         background-color: #ff867c;
     }
