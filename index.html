@@ -23,22 +23,31 @@
       <div class="formfield-select">
         <div class="highPass__container">
           <p class="highPass__title">HighPass Filter</p>
-          <input class="radio-button" type="radio" name="highPass" value="on" />
+          <input class="radio-button" type="radio" name="highPass" value="on" id="highPassOn" />
           <label for="highPass">On</label>
           <input
             class="radio-button"
+            id="highPassOff"
             type="radio"
             name="highPass"
             value="off"
+            checked
           />
           <label for="highPass">Off</label>
         </div>
         <div class="reverb__container">
           <p class="reverb__title">Réverbe</p>
           <audio id="reverb-file" src="./bigHall.wav" type="audio/wav"></audio>
-          <input class="radio-button" type="radio" name="reverb" value="on" />
+          <input class="radio-button" type="radio" name="reverb" value="on" id="reverbOn"/>
           <label for="reverb">On</label>
-          <input class="radio-button" type="radio" name="reverb" value="off" />
+          <input
+            class="radio-button"
+            type="radio"
+            name="reverb"
+            value="off"
+            id="reverbOff"
+            checked
+          />
           <label for="reverb">Off</label>
         </div>
         <!-- <div class="reverbType__container">
@@ -57,6 +66,7 @@
             type="radio"
             name="distortion"
             value="on"
+            id="distortionOn"
           />
           <label for="distortion">On</label>
           <input
@@ -64,6 +74,8 @@
             type="radio"
             name="distortion"
             value="off"
+            id="distortionOff"
+            checked
           />
           <label for="distortion">Off</label>
         </div>
