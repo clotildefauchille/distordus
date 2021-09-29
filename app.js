@@ -1,6 +1,8 @@
 var app = {
-  //TODO bouton input stylesheet
   //TODO analyseur à taffer ligne deviens rouge au rec
+  //TODO pouvoir chainer les effects
+  //TODO pouvoir telecharger le fichier audio crée
+  //TODO ajouter compresseur fixe et pouvoir le changer
   init: () => {
     //l'utilisateur autorise ou non l'enregistrement
     navigator.mediaDevices
@@ -20,6 +22,7 @@ var app = {
     app.highPassButton = document.getElementById("highPass");
     app.distortionButton = document.getElementById("distortion");
     app.reverbButton = document.getElementById("reverb");
+    app.rec = document.getElementById("record");
     app.getEffect();
   },
   onSuccess: (stream) => {
@@ -235,9 +238,11 @@ var app = {
   listenToButtonClick: () => {
     //TODO faire un bouton qui clignote la 1ere fois vec monitoring
     app.recordButton.addEventListener("click", (evt) => {
-      app.startRecord();
+      app.rec.classList.add("rec");
+      app.startRecord(); 
     });
     app.stopButton.addEventListener("click", (evt) => {
+      app.rec.classList.remove("rec");
       app.stopRecord();
     });
   },

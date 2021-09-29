@@ -4,12 +4,13 @@
 
     body {
         background-color: #c1d5e0;
-        width: 1250px;
-        margin: 35px auto;
+        width: 70%;
+        margin: 0 17% 0 17%;
         font-family: 'Permanent Marker', cursive;
     }
 
     .distordus-title {
+        background-color: #62757F;
         font-size: 64px;
         color: #a7ffeb;
         display: flex;
@@ -49,6 +50,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1rem solid black;
+        margin-bottom: 0.40rem;
     }
 
     .buttonStopRec {
@@ -65,14 +68,36 @@
         font-family: 'Permanent Marker', cursive;
     }
 
+    .rec {
+        animation-duration: .7s;
+        animation-name: clignoter;
+        animation-iteration-count: infinite;
+        transition: none;
+    }
+
+    @keyframes clignoter {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
     .formfield-select {
         display: grid;
-        border: 1px solid black;
         justify-content: center;
         flex-direction: column;
         background-color: #62757f;
         color: #a7ffeb;
         font-size: large;
+    }
+
+    .effect__title {
+        margin-top: 1rem;
     }
 
     input {
@@ -89,15 +114,6 @@
         box-sizing: inherit;
         margin: 0;
         padding: 0;
-    }
-
-    /* si plusieurs boutton */
-
-    .mid {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: 1em;
     }
 
     /* Switch starts here */
@@ -123,7 +139,6 @@
         height: 4em;
         overflow: hidden;
         border-bottom: 0.5em solid #62757F;
-        margin: 1em;
     }
 
     .rocker-small::before {
