@@ -14,7 +14,9 @@
       <header class="distordus-title" id="Welcome to Distordus">
         Distordus
       </header>
-      <h1 class="border">distord youre voice and share it to the world...</h1>
+      <h1 class="border-h1">
+        distord youre voice and share it to the world...
+      </h1>
       <canvas class="visualizer"></canvas>
       <div class="border" id="buttons">
         <button class="buttonStopRec" id="record">Record</button>
@@ -23,68 +25,29 @@
       <div class="formfield-select">
         <div class="highPass__container">
           <p class="highPass__title">HighPass Filter</p>
-          <input class="radio-button" type="radio" name="highPass" value="on" id="highPassOn" />
-          <label for="highPass">On</label>
-          <input
-            class="radio-button"
-            id="highPassOff"
-            type="radio"
-            name="highPass"
-            value="off"
-            checked
-          />
-          <label for="highPass">Off</label>
+
+          <label class="rocker-small">
+            <input type="checkbox" id="highPass" />
+            <span class="switch-left">On</span>
+            <span class="switch-right">Off</span>
+          </label>
         </div>
         <div class="reverb__container">
           <p class="reverb__title">Réverbe</p>
           <audio id="reverb-file" src="./bigHall.wav" type="audio/wav"></audio>
-          <input class="radio-button" type="radio" name="reverb" value="on" id="reverbOn"/>
-          <label for="reverb">On</label>
-          <input
-            class="radio-button"
-            type="radio"
-            name="reverb"
-            value="off"
-            id="reverbOff"
-            checked
-          />
-          <label for="reverb">Off</label>
-        </div>
-        <!-- <div class="reverbType__container">
-                <p class="reverbType__title">RéverbeType</p>
-                <input type="radio" name="reverbType" value="on" />
-                <label for="reverbType">Short</label>
-                <input type="radio" name="reverbType" value="off" />
-                <label for="reverbType">Long</label>
-            </div>
-            <label for="avatar">choose reverb type:</label>
-            <input type="file" id="reverb-file" name="emulator-file" accept=".wav"> -->
+          <label class="rocker-small">
+          <input type="checkbox" id="reverb" >
+          <span class="switch-left" >On</span>
+          <span class="switch-right">Off</span>
+        </label>
         <div class="distortion__container">
           <p class="distortion__title">Distortion</p>
-          <input
-            class="radio-button"
-            type="radio"
-            name="distortion"
-            value="on"
-            id="distortionOn"
-          />
-          <label for="distortion">On</label>
-          <input
-            class="radio-button"
-            type="radio"
-            name="distortion"
-            value="off"
-            id="distortionOff"
-            checked
-          />
-          <label for="distortion">Off</label>
+          <label class="rocker-small">
+            <input type="checkbox" id="distortion"/>
+            <span class="switch-left">On</span>
+            <span class="switch-right">Off</span>
+          </label>
         </div>
-        <!-- <label for="audio-filters">choose filter:</label>
-            <select class="formfield-select--container" name="audio-filters" id="audio-filters">
-                <option value="distordus">Distordus</option>
-                <option value="HighPass">Broken hp</option>
-                <option value="reverb">Reverb</option>
-            </select> -->
       </div>
     </div>
     <div id="audioFileContainer"></div>

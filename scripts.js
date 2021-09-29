@@ -58,11 +58,7 @@ let audioCreateContainers = async function(stream) {
     }
 
     // set up canvas context for visualizer
-    var canvas = document.querySelector('.visualizer');
-    var canvasCtx = canvas.getContext("2d");
-    var intendedWidth = document.querySelector('.wrapper').clientWidth;
-    canvas.setAttribute('width', intendedWidth);
-     var drawVisual;
+    
 
     function analyseAudio(){
         source.connect(analyser);

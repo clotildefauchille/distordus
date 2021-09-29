@@ -10,19 +10,16 @@ var app = {
     app.recordButton = document.getElementById("record");
     app.stopButton = document.getElementById("stop");
     app.listenToButtonClick();
-    app.listenToInputValueChange();
+    app.listenToSwitch();
     app.canvas = document.querySelector('.visualizer');
     app.canvasCtx = app.canvas.getContext("2d");
     app.intendedWidth = document.querySelector('.wrapper').clientWidth;
-    app.canvas.setAttribute('width', intendedWidth);
+    app.canvas.setAttribute('width', app.intendedWidth);
     app.drawVisual;
     app.audioFileContainer = document.getElementById("audioFileContainer");
-    app.highPassButtonOff = document.getElementById("highPassOff");
-    app.highPassButtonOn = document.getElementById("highPassOn");
-    app.distortionButtonOn = document.getElementById("distortionOn");
-    app.distortionButtonOff = document.getElementById("distortionOff");
-    app.reverbButtonOn = document.getElementById("reverbOn");
-    app.reverbButtonOff = document.getElementById("reverbOff");
+    app.highPassButton = document.getElementById("highPass");
+    app.distortionButton = document.getElementById("distortion");
+    app.reverbButton = document.getElementById("reverb");
     app.getEffect();
   },
   onSuccess: (stream) => {
@@ -104,25 +101,25 @@ var app = {
     document.body.insertBefore(textEdit, app.audioFileContainer);
   },
   getEffect: () => {
-    if ((app.highPassButtonOn.checked) && (!app.reverbButtonOn.checked) && (!app.distortionButtonOn.checked)) {
-      console.log('hey hipasson only')
+    if ((app.highPassButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked)) {
+      console.log('hey hipass only')
       app.convolver.disconnect();
       app.distortion.disconnect();
       app.connectHighPassFilter();
     }
-    if ((app.reverbButtonOn.checked) && (!app.distortionButtonOn.checked) && (!app.highPassButtonOn.checked)) {
+    if ((app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.highPassButton.checked)) {
       console.log('hey revOn only')
       app.highPassFilter.disconnect();
       app.distortion.disconnect();
       app.connectReverb();
     }
-    if ((app.distortionButtonOn.checked) && (!app.reverbButtonOn.checked) && (!app.highPassButtonOn.checked)) {
+    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
       console.log('hey distOn only')
       app.convolver.disconnect();
       app.highPassFilter.disconnect();
       app.connectDistortion();
     }
-    if ((!app.distortionButtonOn.checked) && (!app.reverbButtonOn.checked) && (!app.highPassButtonOn.checked)) {
+    if ((!app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
       console.log('no effect');
       app.highPassFilter.disconnect();
       app.distortion.disconnect();
@@ -169,7 +166,6 @@ var app = {
     draw();
   },
   connectToNoEffect: () => {
-    console.log("conection function");
     app.source.connect(app.gainNode);
     //monitoring
     app.source.connect(app.audioCtx.destination);
@@ -228,10 +224,10 @@ var app = {
     app.convolver.buffer = await app.audioCtx.decodeAudioData(arraybuffer);
     return app.convolver;
   },
-  listenToInputValueChange: () => {
-    let radioButtons = document.querySelectorAll(".radio-button");
-    radioButtons.forEach((radioButton) => {
-      radioButton.addEventListener("change", (e) => {
+  listenToSwitch: () => {
+    let checkButtons = document.querySelectorAll(".rocker-small");
+    checkButtons.forEach((checkButton) => {
+      checkButton.addEventListener("change", (e) => {
         app.getEffect();
       })
     });
