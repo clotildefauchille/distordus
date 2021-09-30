@@ -1,8 +1,11 @@
 var app = {
   //TODO analyseur à taffer ligne deviens rouge au rec
   //TODO pouvoir chainer les effects
-  //TODO pouvoir telecharger le fichier audio crée
+  //TODO enlever rec de voix sans effet 
+  //TODO pouvoir telecharger et partager le fichier audio crée
   //TODO ajouter compresseur fixe et pouvoir le changer
+  //TODO creer un bouton qui coupe ou non le monitoring
+  //What’s a buffer? In generic terms, a buffer is a region of physical memory used to temporarily store data while it is being moved from one place to another.
   init: () => {
     //l'utilisateur autorise ou non l'enregistrement
     navigator.mediaDevices
@@ -36,26 +39,25 @@ var app = {
     app.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     //creation d'une entrée, source audio
     app.source = app.audioCtx.createMediaStreamSource(stream);
-
-    //app.mic.disconnect(app.audioCtx.destination)
-
     //creation d'une sortie, destination audio
     app.streamDestination = app.audioCtx.createMediaStreamDestination();
     //creation d'un enregistreur
     app.mediaRecorder = new MediaRecorder(app.streamDestination.stream);
+    //pour un eq parametrique utiliser 'peaking' type
     app.highPassFilter = app.audioCtx.createBiquadFilter();
     app.distortion = app.audioCtx.createWaveShaper();
     app.convolver = app.audioCtx.createConvolver();
-    app.gainNode = app.audioCtx.createGain();
+    app.highPassGain = app.audioCtx.createGain();
+    app.reverbGain = app.audioCtx.createGain();
+    app.distortionGain = app.audioCtx.createGain();
     app.analyser = app.audioCtx.createAnalyser();
     app.analyseAudio();
 
-    //connecte la source à la sortie
   },
   pushBlob: () => {
     app.mediaRecorder.ondataavailable = function (e) {
       app.chunks.push(e.data);
-      console.log("chunks", app.chunks);
+      console.log("chunks", app.chunks, e.data);
     };
   },
   createBlob: () => {
@@ -64,7 +66,6 @@ var app = {
       app.chunks = [];
       app.audioURL = window.URL.createObjectURL(app.blob);
       //console.log("app.audioURL in onstop", app.audioURL);
-      app.createElementAudioDisplay(app.audioURL);
       app.audioFileName();
     };
   },
@@ -81,7 +82,7 @@ var app = {
     //app.source.connect(app.audioCtx.destination)
     app.stopButton.disabled = false;
     app.recordButton.disabled = true;
-    app.changeButtonColor(app.recordButton, "#b61827", "white");
+    app.changeButtonColor(app.recordButton, "#ef534f", "white");
   },
   stopRecord: () => {
     app.mediaRecorder.stop();
@@ -97,37 +98,100 @@ var app = {
   },
   audioFileName: () => {
     let audioTitle = prompt("enter your audio file name", "mon titre audio");
-    let newTitle = document.createTextNode(audioTitle);
-    let textEdit = document.createElement("div");
-    textEdit.appendChild(newTitle);
-    textEdit.className = "audiofile-title";
-    document.body.insertBefore(textEdit, app.audioFileContainer);
+    if (audioTitle === null) {
+      return; //break out of the function early
+    } else {
+      let newTitle = document.createTextNode(audioTitle);
+      let textEdit = document.createElement("div");
+      textEdit.appendChild(newTitle);
+      textEdit.className = "audiofile-title";
+      document.body.insertBefore(textEdit, app.audioFileContainer);
+      app.createElementAudioDisplay(app.audioURL);
+    }
+
   },
-  getEffect: () => {
+  getEffect: async () => {
     if ((app.highPassButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked)) {
       console.log('hey hipass only')
-      app.convolver.disconnect();
-      app.distortion.disconnect();
+      app.reverb.disconnect();
+      app.reverbGain.disconnect();
+      app.distortionGain.disconnect();
+
       app.connectHighPassFilter();
+      app.source.connect(app.highPassFilter);
+      app.highPassFilter.connect(app.highPassGain);
+      app.highPassGain.connect(app.streamDestination);
+      //monitoring
+      app.highPassGain.connect(app.audioCtx.destination)
     }
     if ((app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.highPassButton.checked)) {
-      console.log('hey revOn only')
-      app.highPassFilter.disconnect();
-      app.distortion.disconnect();
-      app.connectReverb();
+      console.log('hey revOn only');
+      app.distortionGain.disconnect();
+      app.highPassGain.disconnect();
+
+      await app.connectReverb();
+
+      app.source.connect(app.reverb);
+      app.reverb.connect(app.reverbGain);
+      app.reverbGain.connect(app.streamDestination);
+      //monitoring
+      app.reverb.connect(app.audioCtx.destination)
     }
     if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
       console.log('hey distOn only')
-      app.convolver.disconnect();
-      app.highPassFilter.disconnect();
+      app.highPassGain.disconnect();
+      app.reverbGain.disconnect();
+
       app.connectDistortion();
+      app.source.connect(app.distortion);
+      app.distortion.connect(app.distortionGain);
+      app.distortionGain.connect(app.streamDestination);
+      
+      //pour avoir effect dans monitoring
+      app.distortionGain.connect(app.audioCtx.destination)
     }
     if ((!app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
       console.log('no effect');
+      app.distortionGain.disconnect();
+      app.highPassGain.disconnect();
+      app.distortionGain.disconnect();
+      app.reverb.disconnect();
       app.highPassFilter.disconnect();
       app.distortion.disconnect();
-      app.convolver.disconnect();
+
       app.connectToNoEffect();
+      app.source.connect(app.streamDestination);
+      
+      //monitoring
+      //app.source.connect(app.audioCtx.destination);
+
+    }
+    if ((!app.distortionButton.checked) && (app.reverbButton.checked) && (app.highPassButton.checked)) {
+      console.log('hey highPass + rev');
+
+      app.source.connect(app.highPassFilter);
+      app.highPassFilter.connect(app.highPassGain);
+      app.connectHighPassFilter();
+      await app.connectReverb();
+      app.highPassGain.connect(app.reverb);
+      app.reverb.connect(app.streamDestination);
+      //monitoring
+      app.reverb.connect(app.audioCtx.destination);
+
+    }
+    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (app.highPassButton.checked)) {
+      console.log('hey disto + highpass');
+      
+      app.source.connect(app.highPassFilter);
+      app.connectHighPassFilter();
+      app.highPassFilter.connect(app.highPassGain);
+      app.connectDistortion();
+      app.highPassGain.connect(app.distortion);
+      app.distortion.connect(app.distortionGain);
+      app.distortionGain.connect(app.streamDestination);
+      //monitoring
+      app.distortionGain.connect(app.audioCtx.destination);
+
     }
   },
   analyseAudio: () => {
@@ -169,30 +233,16 @@ var app = {
     draw();
   },
   connectToNoEffect: () => {
-    app.source.connect(app.gainNode);
-    //monitoring
-    app.source.connect(app.audioCtx.destination);
-    app.gainNode.gain.value = 1;
-    app.gainNode.connect(app.streamDestination);
+    //app.gainNode.gain.value = 1;
+   // app.gainNode.connect(app.streamDestination);
   },
   connectHighPassFilter: () => {
-    app.source.connect(app.highPassFilter);
-    //monitoring
-    app.highPassFilter.connect(app.audioCtx.destination)
     app.highPassFilter.type = "highpass";
-    app.highPassFilter.frequency.setValueAtTime(5000, app.audioCtx.currentTime);
-    app.highPassFilter.connect(app.gainNode);
-    //console.log('hey gain', app.gainNode)
-    app.gainNode.gain.value = 5;
-    app.gainNode.connect(app.streamDestination);
+    app.highPassFilter.frequency.setValueAtTime(2000, app.audioCtx.currentTime);
+    app.highPassGain.gain.value = 4;
   },
   connectDistortion: () => {
-    app.source.connect(app.distortion);
-    app.distortion.connect(app.gainNode);
-    app.gainNode.gain.value = 0.3;
-    //pour avoir effect dans monitoring
-    app.gainNode.connect(app.audioCtx.destination)
-
+    app.distortionGain.gain.value = 0.3;
     function makeDistortionCurve(amount) {
       var k = typeof amount === "number" ? amount : 50,
         n_samples = 44100,
@@ -208,16 +258,10 @@ var app = {
     }
     app.distortion.curve = makeDistortionCurve(200);
     app.distortion.oversample = "2x";
-    app.gainNode.connect(app.streamDestination);
   },
   connectReverb: async () => {
-    let reverb = await app.createReverb();
-    app.source.connect(reverb);
-    //monitoring
-    reverb.connect(app.audioCtx.destination)
-    reverb.connect(app.gainNode);
-    app.gainNode.gain.value = 2;
-    app.gainNode.connect(app.streamDestination);
+    app.reverb = await app.createReverb();
+    app.reverbGain.gain.value = 3;
   },
   createReverb: async () => {
     // load impulse response from file
@@ -239,7 +283,7 @@ var app = {
     //TODO faire un bouton qui clignote la 1ere fois vec monitoring
     app.recordButton.addEventListener("click", (evt) => {
       app.rec.classList.add("rec");
-      app.startRecord(); 
+      app.startRecord();
     });
     app.stopButton.addEventListener("click", (evt) => {
       app.rec.classList.remove("rec");

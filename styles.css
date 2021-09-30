@@ -11,7 +11,7 @@
 
     .distordus-title {
         background-color: #62757F;
-        font-size: 64px;
+        font-size: 5rem;
         color: #a7ffeb;
         display: flex;
         justify-content: center;
@@ -69,7 +69,7 @@
     }
 
     .rec {
-        animation-duration: .7s;
+        animation-duration: .8s;
         animation-name: clignoter;
         animation-iteration-count: infinite;
         transition: none;
@@ -104,8 +104,39 @@
         background-color: #62757f;
     }
 
+    h2 {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
     .audio-display-style {
-        background-color: #ff867c;
+        margin-top: 1rem;
+        background-color: #c1d5e0;
+        width: 100%;
+    }
+
+    /*style des elements audios crée ac les pseudo elements*/
+
+    audio::-webkit-media-controls-panel {
+        background-color: #90A4AE;
+    }
+
+    audio::-webkit-media-controls-mute-button {
+        background-color: #A7FFEB;
+        border-radius: 50%;
+    }
+
+    audio::-webkit-media-controls-play-button {
+        background-color: #C1D5E0;
+        border-radius: 50%;
+    }
+
+    audio::-webkit-media-controls-play-button:hover {
+        background-color: rgba(177, 212, 224, .7);
+    }
+
+    audio::-webkit-media-controls-time-remaining-display {
+        color: #fff;
     }
 
     /* import style button switch  heritage pour tous les enfants*/
