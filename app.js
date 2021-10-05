@@ -1,9 +1,10 @@
 var app = {
   //TODO analyseur à taffer ligne deviens rouge au rec
   //TODO pouvoir chainer les effects
+  //TODO pouvoir disable les effets  qund pqs de chainage
   //TODO enlever rec de voix sans effet 
   //TODO pouvoir telecharger et partager le fichier audio crée
-  //TODO ajouter compresseur fixe et pouvoir le changer
+  //TODO ajouter compresseur fixe et pouvoir le changer ou eq param
   //TODO creer un bouton qui coupe ou non le monitoring
   //What’s a buffer? In generic terms, a buffer is a region of physical memory used to temporarily store data while it is being moved from one place to another.
   init: () => {
@@ -12,10 +13,12 @@ var app = {
       .getUserMedia({ audio: true })
       .then(app.onSuccess, app.onError);
     app.chunks = [];
+
     app.recordButton = document.getElementById("record");
     app.stopButton = document.getElementById("stop");
     app.listenToButtonClick();
     app.listenToSwitch();
+    app.listenToRangeChange();
     app.canvas = document.querySelector('.visualizer');
     app.canvasCtx = app.canvas.getContext("2d");
     app.intendedWidth = document.querySelector('.wrapper').clientWidth;
@@ -23,10 +26,12 @@ var app = {
     app.drawVisual;
     app.audioFileContainer = document.getElementById("audioFileContainer");
     app.highPassButton = document.getElementById("highPass");
+    app.compressorButton = document.getElementById("compressor");
     app.distortionButton = document.getElementById("distortion");
     app.reverbButton = document.getElementById("reverb");
+    app.delayButton = document.getElementById("delay")
     app.rec = document.getElementById("record");
-    app.getEffect();
+    app.connectEffect();
   },
   onSuccess: (stream) => {
     app.audioCreateContainers(stream);
@@ -44,6 +49,8 @@ var app = {
     //creation d'un enregistreur
     app.mediaRecorder = new MediaRecorder(app.streamDestination.stream);
     //pour un eq parametrique utiliser 'peaking' type
+   // app.peaking = app.audioCtx.createBiquadFilter();
+
     app.highPassFilter = app.audioCtx.createBiquadFilter();
     app.distortion = app.audioCtx.createWaveShaper();
     app.convolver = app.audioCtx.createConvolver();
@@ -51,6 +58,10 @@ var app = {
     app.reverbGain = app.audioCtx.createGain();
     app.distortionGain = app.audioCtx.createGain();
     app.analyser = app.audioCtx.createAnalyser();
+    app.delay = app.audioCtx.createDelay();
+    app.feedback = app.audioCtx.createGain();
+    app.peaking = app.audioCtx.createBiquadFilter();
+    app.compressor = app.audioCtx.createDynamicsCompressor();
     app.analyseAudio();
 
   },
@@ -110,39 +121,40 @@ var app = {
     }
 
   },
-  getEffect: async () => {
-    if ((app.highPassButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked)) {
+  connectEffect: async(value) => {
+    if ((app.highPassButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked)&&(!app.delayButton.checked)) {
       console.log('hey hipass only')
-      app.reverb.disconnect();
       app.reverbGain.disconnect();
       app.distortionGain.disconnect();
+      app.convolver.disconnect();
+    
 
-      app.connectHighPassFilter();
+      app.highPassFilterParameters();
       app.source.connect(app.highPassFilter);
       app.highPassFilter.connect(app.highPassGain);
       app.highPassGain.connect(app.streamDestination);
       //monitoring
       app.highPassGain.connect(app.audioCtx.destination)
     }
-    if ((app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.highPassButton.checked)) {
+    if ((app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.highPassButton.checked)&&(!app.delayButton.checked)) {
       console.log('hey revOn only');
       app.distortionGain.disconnect();
       app.highPassGain.disconnect();
 
-      await app.connectReverb();
+      await app.reverbParameters();
 
       app.source.connect(app.reverb);
-      app.reverb.connect(app.reverbGain);
+      app.convolver.connect(app.reverbGain);
       app.reverbGain.connect(app.streamDestination);
       //monitoring
-      app.reverb.connect(app.audioCtx.destination)
+      app.convolver.connect(app.audioCtx.destination)
     }
-    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
+    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked) && (!app.delayButton.checked)) {
       console.log('hey distOn only')
       app.highPassGain.disconnect();
       app.reverbGain.disconnect();
 
-      app.connectDistortion();
+      app.distortionParameters();
       app.source.connect(app.distortion);
       app.distortion.connect(app.distortionGain);
       app.distortionGain.connect(app.streamDestination);
@@ -150,48 +162,78 @@ var app = {
       //pour avoir effect dans monitoring
       app.distortionGain.connect(app.audioCtx.destination)
     }
-    if ((!app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked)) {
+    if ((!app.distortionButton.checked) && (!app.reverbButton.checked) && (!app.highPassButton.checked) && (!app.delayButton.checked)) {
       console.log('no effect');
       app.distortionGain.disconnect();
       app.highPassGain.disconnect();
       app.distortionGain.disconnect();
-      app.reverb.disconnect();
+      app.convolver.disconnect();
       app.highPassFilter.disconnect();
       app.distortion.disconnect();
+      app.delay.disconnect();
 
-      app.connectToNoEffect();
-      app.source.connect(app.streamDestination);
+      //app.noEffectParameters();
+      //app.source.connect(app.streamDestination);
       
       //monitoring
       //app.source.connect(app.audioCtx.destination);
 
     }
-    if ((!app.distortionButton.checked) && (app.reverbButton.checked) && (app.highPassButton.checked)) {
+    if ((!app.distortionButton.checked) && (app.reverbButton.checked) && (app.highPassButton.checked) && (!app.delayButton.checked)) {
       console.log('hey highPass + rev');
 
       app.source.connect(app.highPassFilter);
       app.highPassFilter.connect(app.highPassGain);
-      app.connectHighPassFilter();
-      await app.connectReverb();
+      app.highPassFilterParameters();
+      await app.reverbParameters();
       app.highPassGain.connect(app.reverb);
       app.reverb.connect(app.streamDestination);
       //monitoring
       app.reverb.connect(app.audioCtx.destination);
 
+
     }
-    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (app.highPassButton.checked)) {
+    if ((app.distortionButton.checked) && (!app.reverbButton.checked) && (app.highPassButton.checked) && (!app.delayButton.checked)) {
       console.log('hey disto + highpass');
       
       app.source.connect(app.highPassFilter);
-      app.connectHighPassFilter();
+      app.highPassFilterParameters();
       app.highPassFilter.connect(app.highPassGain);
-      app.connectDistortion();
+      app.distortionParameters();
       app.highPassGain.connect(app.distortion);
       app.distortion.connect(app.distortionGain);
       app.distortionGain.connect(app.streamDestination);
       //monitoring
       app.distortionGain.connect(app.audioCtx.destination);
 
+    }
+    if ((app.delayButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.highPassButton.checked)) {
+      console.log('hey delay only')
+      app.convolver.disconnect();
+      app.reverbGain.disconnect();
+      app.distortionGain.disconnect();
+      app.highPassGain.disconnect();
+
+      app.delayParameters(value)
+      app.source.connect(app.delay);
+      app.delay.connect(app.feedback)
+      app.feedback.connect(app.delay);
+      app.delay.connect(app.streamDestination);
+      //monitoring
+      app.delay.connect(app.audioCtx.destination);
+    }
+    if ((!app.highPassButton.checked) && (!app.reverbButton.checked) && (!app.distortionButton.checked) && (!app.delayButton.checked)&& (app.compressorButton.checked)) {
+      console.log('hey compressor only')
+      app.reverbGain.disconnect();
+      app.distortionGain.disconnect();
+      app.convolver.disconnect();
+
+
+      app.compressorParameters();
+      app.source.connect(app.compressor);
+      app.compressor.connect(app.streamDestination);
+      //monitoring
+      app.compressor.connect(app.audioCtx.destination)
     }
   },
   analyseAudio: () => {
@@ -232,16 +274,17 @@ var app = {
     };
     draw();
   },
-  connectToNoEffect: () => {
+  noEffectParameters: () => {
     //app.gainNode.gain.value = 1;
    // app.gainNode.connect(app.streamDestination);
   },
-  connectHighPassFilter: () => {
+  highPassFilterParameters: () => {
     app.highPassFilter.type = "highpass";
-    app.highPassFilter.frequency.setValueAtTime(2000, app.audioCtx.currentTime);
+    app.highPassFilter.frequency.value = 6000;
+    app.highPassFilter.Q.value = 1;
     app.highPassGain.gain.value = 4;
   },
-  connectDistortion: () => {
+  distortionParameters: () => {
     app.distortionGain.gain.value = 0.3;
     function makeDistortionCurve(amount) {
       var k = typeof amount === "number" ? amount : 50,
@@ -259,23 +302,51 @@ var app = {
     app.distortion.curve = makeDistortionCurve(200);
     app.distortion.oversample = "2x";
   },
-  connectReverb: async () => {
+  reverbParameters: async () => {
     app.reverb = await app.createReverb();
     app.reverbGain.gain.value = 3;
   },
   createReverb: async () => {
     // load impulse response from file
     //TODO try catch
-    let response = await fetch("http://localhost:8080/public/audio/bigHall.wav");
+    let response = await fetch(`${window.location.href}/public/audio/bigHall.wav`);
     let arraybuffer = await response.arrayBuffer();
     app.convolver.buffer = await app.audioCtx.decodeAudioData(arraybuffer);
     return app.convolver;
+  },
+  delayParameters: (value) => {
+    app.feedback.gain.value = value;
+    app.delay.delayTime.value = value;
+  },
+  compressorParameters: ()=>{
+    //default value is -24 and it can be set between -100 and 0.
+    app.compressor.threshold.value = -50;
+    //default value is 30 and it can be set between 0 and 40
+    app.compressor.knee.value = 40;
+    //default value is 12 and it can be set between 1 and 20
+    app.compressor.ratio.value = 15;
+    //default value is 0.003 and it can be set between 0 and 1
+    app.compressor.attack.value = 0;
+    //entre 0 et 1 default 0.25
+    app.compressor.release.value = 0.25;
+    //The range of this value is between -20 and 0 (in dB), the amount of gain reduction
+    let myReduction = app.compressor.reduction;
+    console.log('myReduction', myReduction)
   },
   listenToSwitch: () => {
     let checkButtons = document.querySelectorAll(".rocker-small");
     checkButtons.forEach((checkButton) => {
       checkButton.addEventListener("change", (e) => {
-        app.getEffect();
+        app.connectEffect();
+      })
+    });
+  },
+  listenToRangeChange: () => {
+    let rangeSelectors = document.querySelectorAll(".range");
+    rangeSelectors.forEach((rangeSelector) => {
+      rangeSelector.addEventListener("change", (e) => {
+        console.log(e.target.value)
+        app.connectEffect(e.target.value);
       })
     });
   },

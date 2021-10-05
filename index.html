@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Distordus</title>
     <link href="styles.css" rel="stylesheet" />
     <link
@@ -36,19 +38,64 @@
           <p class="effect__title">Réverbe</p>
           <audio id="reverb-file" src="./bigHall.wav" type="audio/wav"></audio>
           <label class="rocker-small">
-          <input type="checkbox" id="reverb" >
-          <span class="switch-left" >On</span>
-          <span class="switch-right">Off</span>
-        </label>
-        <div class="distortion__container">
-          <p class="effect__title">Distortion</p>
-          <label class="rocker-small">
-            <input type="checkbox" id="distortion"/>
+            <input type="checkbox" id="reverb" />
             <span class="switch-left">On</span>
             <span class="switch-right">Off</span>
           </label>
         </div>
-      </div>
+
+        <div class="distortion__container">
+          <p class="effect__title">Distortion</p>
+          <label class="rocker-small">
+            <input type="checkbox" id="distortion" />
+            <span class="switch-left">On</span>
+            <span class="switch-right">Off</span>
+          </label>
+        </div>
+        <div class="compressor__container">
+          <p class="effect__title">Compressor</p>
+          <label class="rocker-small">
+            <input type="checkbox" id="compressor" />
+            <span class="switch-left">On</span>
+            <span class="switch-right">Off</span>
+          </label>
+        </div>
+        <div class="delay-bigContainer">
+          <div class="delay__container">
+            <p class="effect__title">Delay</p>
+            <label class="rocker-small">
+              <input type="checkbox" id="delay" />
+              <span class="switch-left">On</span>
+              <span class="switch-right">Off</span>
+            </label>
+          </div>
+          <div class="range-container">
+            <div>
+              <label> Time :</label>
+              <input
+                type="range"
+                value="25"
+                class="range"
+                id="time-slide"
+                min="0"
+                max="0.9"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label> Feedback :</label>
+              <input
+                type="range"
+                value="25"
+                class="range"
+                id="feedback-slide"
+                min="0"
+                max="0.9"
+                step="0.1"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div>
